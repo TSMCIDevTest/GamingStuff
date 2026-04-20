@@ -1,92 +1,82 @@
-import {
-  exchangeNpssoForAccessCode,
-  exchangeAccessCodeForAuthTokens,
-  getProfileFromUserName,
-  getUserTitles
-} from "psn-api";
-
-import { getGameData } from "../../../lib/rawg";
-
-let auth;
-
-async function getAuth() {
-  if (!auth) {
-    const code = await exchangeNpssoForAccessCode(process.env.NPSSO);
-    auth = await exchangeAccessCodeForAuthTokens(code);
-  }
-  return auth;
-}
+import { getPSN } from "../../../lib/psn";
 
 export async function GET(req) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const username = searchParams.get("user");
+  const { searchParams } = new URL(req.url);
+  const user = searchParams.get("user");
 
-    // ✅ prevent crash
-    if (!username) {
-      return Response.json(
-        { error: "Missing ?user parameter" },
-        { status: 400 }
-      );
+  const data = await getPSN(user);
+
+  const statusColor =
+    data.status === "Online" ? "#2cff88" :
+    data.status === "Away" ? "#ffaa00" :
+    "#ff4d4d";
+
+  const gameText = data.game || "Idle";
+
+  const svg = `
+  <svg width="600" height="160" xmlns="http://www.w3.org/2000/svg">
+
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#0a0f2c"/>
+        <stop offset="100%" stop-color="#1b2a6b"/>
+      </linearGradient>
+
+      <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#2f80ff"/>
+        <stop offset="100%" stop-color="#56ccf2"/>
+      </linearGradient>
+
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    <!-- Background -->
+    <rect width="100%" height="100%" rx="20" fill="url(#bg)" />
+
+    <!-- Accent bar -->
+    <rect x="0" y="0" width="6" height="100%" fill="url(#accent)" />
+
+    <!-- Avatar -->
+    <clipPath id="circle">
+      <circle cx="80" cy="80" r="40" />
+    </clipPath>
+
+    <image href="${data.avatar}" x="40" y="40" width="80" height="80" clip-path="url(#circle)" />
+
+    <!-- Username -->
+    <text x="150" y="60" fill="#ffffff" font-size="22" font-family="Arial" font-weight="bold">
+      ${data.username}
+    </text>
+
+    <!-- Status -->
+    <circle cx="150" cy="80" r="6" fill="${statusColor}" filter="url(#glow)" />
+    <text x="165" y="85" fill="#cfd8ff" font-size="14">
+      ${data.status}
+    </text>
+
+    <!-- Game -->
+    <text x="150" y="110" fill="#9fb3ff" font-size="16">
+      🎮 ${gameText}
+    </text>
+
+    <!-- Trophy stats -->
+    <text x="150" y="135" fill="#ffd700" font-size="14">
+      🏆 ${data.trophies?.platinum || 0}  🥇 ${data.trophies?.gold || 0}  🥈 ${data.trophies?.silver || 0}  🥉 ${data.trophies?.bronze || 0}
+    </text>
+
+  </svg>
+  `;
+
+  return new Response(svg, {
+    headers: {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "s-maxage=60, stale-while-revalidate=300"
     }
-
-    const a = await getAuth();
-
-    const profile = await getProfileFromUserName(a, username);
-
-    // ✅ safe access
-    const presence = profile.profile.presences?.[0] || {};
-    const trophySummary = profile.profile.trophySummary || {};
-    const avatar = profile.profile.avatarUrls?.[0]?.avatarUrl;
-
-    const titles = await getUserTitles(a, profile.profile.accountId);
-
-    const gameName =
-      presence.gameTitleInfoList?.[0]?.titleName || null;
-
-    const gameData = await getGameData(gameName);
-
-    return Response.json(
-      {
-        username: profile.profile.onlineId,
-        avatar: avatar || null,
-        status: presence.onlineStatus || "Offline",
-
-        game: {
-          name: gameName,
-          cover: gameData.cover || null,
-          video: gameData.video || null
-        },
-
-        level: trophySummary.level || 0,
-        progress: trophySummary.progress || 0,
-        trophies: trophySummary.earnedTrophies || {
-          platinum: 0,
-          gold: 0,
-          silver: 0,
-          bronze: 0
-        },
-
-        trophyTitles: (titles.trophyTitles || [])
-          .slice(0, 8)
-          .map((t) => ({
-            name: t.trophyTitleName,
-            icon: t.trophyTitleIconUrl,
-            progress: t.progress
-          }))
-      },
-      {
-        headers: {
-          "Cache-Control": "s-maxage=60, stale-while-revalidate=300"
-        }
-      }
-    );
-  } catch (err) {
-    console.error("PSN API error:", err);
-
-    return Response.json(
-      { error: "Failed to fetch PSN data" },
-      { status: 500 }
-    );
-  }
+  });
 }
