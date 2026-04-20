@@ -8,18 +8,15 @@ export default function Home() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const currentUser = params.get("user") || "Banerlc"; 
-    setUser(currentUser);
+    const user = new URLSearchParams(window.location.search).get("user") || "Banerlc";
+    setUser(user);
 
     // This fetch now works because the API above returns JSON
-    fetch(`/api/profile?user=${currentUser}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch");
-        return res.json();
-      })
-      .then((data) => setData(data))
-      .catch((err) => console.error("Error loading PSN data:", err));
-  }, []);
+    fetch(`/api/profile?user=${user}`)
+    .then(res => res.json())
+    .then(setData)
+    .catch(err => console.error("This is now valid JSON!", err));
+}, []);
 
   if (!data) return <div style={{ color: "white", padding: 40 }}>Loading Profile...</div>;
 
