@@ -1,0 +1,21 @@
+{
+  "name": "psn",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "framer-motion": "^12.38.0",
+    "next": "^16.2.4",
+    "node-fetch": "^3.3.2",
+    "psn-api": "^2.18.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  }
+}
