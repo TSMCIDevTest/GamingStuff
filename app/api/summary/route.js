@@ -1,4 +1,4 @@
-import { getPSN } from "../../../psn";
+import { getPSN } from "../../../lib/psn";
 import { generateSummary } from "../../../lib/ai";
 
 export async function GET(req) {

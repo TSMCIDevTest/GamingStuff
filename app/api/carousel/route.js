@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   const { getPSN } = await import("../../../lib/psn.js");
-  const { getGameData } = await import("../../../lib/igdb.js");
+  const { getGameData } = await import("../../../lib/rawg.js");
 
   const user = req.query.user;
   const psn = await getPSN(user);
