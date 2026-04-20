@@ -25,13 +25,20 @@ export default function Home() {
       fontFamily: "Inter"
     }}>
 
-      {/* VIDEO BACKGROUND */}
-      {data.game?.video && (
-        <iframe
-          src={data.game.video + "?autoplay=1&mute=1&controls=0&loop=1"}
-          style={{position:"fixed",width:"100%",height:"100%",opacity:0.2,zIndex:0}}
-        />
-      )}
+    {/* VIDEO BACKGROUND */}
+    {data.gameData?.video && (
+        <video autoPlay loop muted
+            style={{
+                position: "fixed",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: 0.2,
+                zIndex: 0
+            }}>
+            <source src={data.gameData.video} />
+        </video>
+    )}
 
       <motion.div initial={{opacity:0}} animate={{opacity:1}}>
 
@@ -46,9 +53,16 @@ export default function Home() {
         </div>
 
         {/* COVER */}
-        {data.game?.cover && (
-          <img src={data.game.cover} style={{width:"100%",marginTop:20,borderRadius:10}}/>
+        {data.gameData?.cover && (
+            <img  
+                src={data.gameData.cover}
+                style={{ width: "100%", borderRadius: 12, marginTop: 20 }}
+            />
         )}
+
+        <p>⭐ Rating: {data.gameData?.rating}</p> 
+        <p>📅 Released: {data.gameData?.released}</p>
+        <p>🎭 Genres: {data.gameData?.genres?.join(", ")}</p>
 
         {/* PROGRESS */}
         <div style={{marginTop:20}}>
