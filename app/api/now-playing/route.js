@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { getPSN } = await import("../lib/psn.js");
+  const { getPSN } = await import("../../../lib/psn.js");
 
   const user = req.query.user;
   const data = await getPSN(user);

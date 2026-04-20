@@ -1,5 +1,5 @@
-import { getPSN } from "@/lib/psn";
-import { generateSummary } from "@/lib/ai";
+import { getPSN } from "../../../psn";
+import { generateSummary } from "../../../lib/ai";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
