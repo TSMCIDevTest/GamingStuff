@@ -88,6 +88,11 @@ export default function Home() {
         </div>
 
       </motion.div>
+      <img 
+        src={`/api/psn?user=${username}`} 
+        alt={`${username}'s PSN Profile`}
+        style={{ borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+      />
     </div>
   );
 }
