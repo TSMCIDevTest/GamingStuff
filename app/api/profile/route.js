@@ -5,7 +5,7 @@ import {
   getUserTitles
 } from "psn-api";
 
-import { getGameData } from "@/lib/rawg"; // ✅ FIXED
+import { getGameData } from "../../../lib/rawg";
 
 let auth;
 
