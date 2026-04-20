@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
+// page
+
 export default function Home() {
   const [data, setData] = useState(null);
 
